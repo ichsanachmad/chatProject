@@ -25,6 +25,10 @@
   </head>
 
   <body>
+    <!-- <center>
+  <h1>Welcome to Sanstation WebChat</h1>
+  <h4>by Ichsan</h4>
+</center> -->
         <div class="container">
           <div id="userFormArea " class="row">
             <div class="col-md-12">
@@ -105,6 +109,12 @@
                 if(data){
                   $userForm.hide();
                   $messageArea.show();
+                  window.alert("Welcome Stationers! \n \n User : (" +data+")");
+                }
+                else{
+                    $messageArea.hide();
+                    window.alert("Invalid Username");
+                    location.reload();
                 }
 
               });
@@ -115,8 +125,12 @@
             socket.on('get users', function(data){
               var html = '';
               for (var i = 0; i < data.length; i++) {
+                if(data){
                 html+= '<li class="list-group-item">'+data[i]+'</li>'
                     ;
+                }
+
+
               }
               $users.html(html);
             });

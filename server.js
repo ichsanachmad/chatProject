@@ -35,13 +35,15 @@ io.sockets.on('connection',function(socket){
 
   //new users
   socket.on('new user', function(data, callback){
-    callback(true);
+    callback(data);
     socket.username=data;
     users.push(socket.username);
     updateUsernames();
   });
 
   function updateUsernames(){
+    
     io.sockets.emit('get users',users);
+
   }
 });
