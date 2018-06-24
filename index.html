@@ -10,11 +10,15 @@
     <script src="/socket.io/socket.io.js"></script>
     <style>
        body{
-         margin-top: 30px;
+         margin-top: 5px;
 
        }
        #messageArea{
          display: none;
+       }
+       #userLogout{
+         display: none;
+         float: right;
        }
 
        .chat {
@@ -26,10 +30,10 @@
 
   <body>
     <center>
-  <h1>Welcome to Sanstation WebChat</h1>
-  <h4>Early Access 1.0.3</h4>
+  <h1 id="firstHeader">Welcome to Sanstation WebChat</h1>
+  <h4 id="firstHeaderH4">Early Access 1.0.3</h4>
 </center>
-
+  <input type="submit" class="btn btn-primary" value="LogOut" id="userLogout" onclick="userLogout()"/>
         <div class="container">
           <div id="userFormArea " class="row">
             <div class="col-md-12">
@@ -70,6 +74,7 @@
               </form>
             </div>
           </div>
+
         </div>
 
         <script>
@@ -83,6 +88,7 @@
             var $userFormArea = $('#userFormArea');
             var $users= $('#users');
             var $username = $('#username');
+            var $userLogout = $('#userLogout');
 
             $messageForm.submit(function(e){
               e.preventDefault();
@@ -110,6 +116,9 @@
                 if(data){
                   $userForm.hide();
                   $messageArea.show();
+                  $userLogout.show();
+                  $('#firstHeader').hide();
+                  $('#firstHeaderH4').hide();
                   window.alert("Welcome Stationers! \n \n User : (" +data+")");
                 }
                 else{
@@ -140,6 +149,9 @@
           function autoScroll() {
             var elem = document.getElementById('chat');
             elem.scrollTop = elem.scrollHeight;
+          }
+          function userLogout(){
+            location.reload();
           }
         </script>
   </body>
