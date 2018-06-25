@@ -7,11 +7,10 @@ connections=[];
 
 server.listen(process.env.PORT || 3000);
 console.log('Server running');
+app.use("/public", express.static(__dirname + "/public"));
 app.get('/',function(req,res){
   res.sendFile(__dirname + '/index.html');
 });
-
-
 
 io.sockets.on('connection',function(socket){
   connections.push(socket);
