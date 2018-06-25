@@ -1,158 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Sanstation App</title>
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <style>
-       body{
-         margin-top: 5px;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Sanstation App</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+  <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></script> BOOTSTRAP 3   -->
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+  <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>   BOOTSTRAP 3    -->
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      margin-top: 5px;
+    }
 
-       }
-       #messageArea{
-         display: none;
-       }
-       #userLogout{
-         display: none;
-         float: right;
-       }
+    #userLogout {
+      display: none;
+      float: right;
+    }
 
-       .chat {
-         overflow-y: auto;
-         height: 70vh;
-       }
-    </style>
-  </head>
+    .bg-gray {
+      background: rgba(55, 61, 66, 1);
+    }
 
-  <body>
-    <center>
-  <h1 id="firstHeader">Welcome to Sanstation WebChat</h1>
-  <h4 id="firstHeaderH4">Early Access 1.0.3</h4>
-</center>
-  <input type="submit" class="btn btn-primary" value="LogOut" id="userLogout" onclick="userLogout()"/>
-        <div class="container">
-          <div id="userFormArea " class="row">
-            <div class="col-md-12">
-              <form id="userForm">
+    .bg-gray-med-transparent {
+      background: rgba(173, 173, 173, .5);
+    }
 
-                <div class="form-group">
-                  <label>Enter Username</label>
-                  <input class="form-control" id="username"/>
-                  <br/>
-                  <input type="submit" class="btn btn-primary" value="Login"/>
-                </div>
+    .bg-gray-high-transparent {
+      background: rgba(55, 61, 66, .1);
+    }
 
-              </form>
-            </div>
+    .bg-gray-extra-transparent {
+      background: rgba(55, 61, 66, .05);
+    }
+
+    .list-user {
+      height: fit-content;
+    }
+
+    .chat {
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 63vh;
+    }
+
+    .chat-msg {
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+
+<body onload="hideElement()">
+  <center>
+    <h1 id="firstHeader">Welcome to Sanstation WebChat</h1>
+    <h4 id="firstHeaderH4">Early Access 1.0.4</h4>
+  </center>
+
+  <div class="container">
+    <div class="row" id="userFormArea">
+      <div class="col-sm-3 mt-5 pt-2 mx-auto shadow rounded">
+        <form id="userForm">
+          <div class="form-group">
+            <label>Username</label>
+            <input class="form-control" id="username"/>
+            <br>
+            <label>Password</label>
+            <input class="form-control" id="password" type="password"/>
+            <br>
+            <input type="submit" class="btn btn-primary" value="Login"/>
           </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-          <div id="messageArea" class="row">
-            <div class="col-md-4">
-              <div class="well">
-                  <h3>Online Users</h3>
-                  <ul class="list-group" id="users"></ul>
-              </div>
-            </div>
-
-
-            <div class="col-md-8">
-              <div class="chat" id="chat"></div>
-
-              <form id="messageForm">
-
-                <div class="form-group">
-                  <label>Enter Message </label>
-                  <textarea class="form-control" id="message"></textarea>
-                  <br/>
-                  <input type="submit" class="btn btn-primary" value="Send Message" onclick="scrollBottom()"/>
-                </div>
-
-              </form>
-            </div>
-          </div>
-
+  <div class="container my-3">
+    <div class="row" id="messageArea">
+      <div class="col-md-3 p-3 shadow-sm rounded list-user bg-gray-med-transparent">
+        <div class="well">
+          <h3>Online Users</h3>
+          <ul class="list-group" id="users"></ul>
         </div>
+        <input type="submit" class="btn btn-danger mt-2" value="Logout" id="userLogout" onclick="userLogout()"/>
+      </div>
 
-        <script>
-          $(function(){
-            var socket = io.connect();
-            var $messageForm = $('#messageForm');
-            var $message = $('#message');
-            var $chat = $('#chat');
-            var $messageArea = $('#messageArea');
-            var $userForm = $('#userForm');
-            var $userFormArea = $('#userFormArea');
-            var $users= $('#users');
-            var $username = $('#username');
-            var $userLogout = $('#userLogout');
+      <div class="col-md-9 shadow rounded bg-gray-extra-transparent">
+        <div class="chat mt-4 ml-2 mb-2" id="chat"></div>
+        <form id="messageForm">
+          <div class="form-group">
+            <label>Enter Message </label>
+            <textarea class="form-control rounded" id="message"></textarea>
+            <br/>
+            <input type="submit" class="btn btn-primary" value="Send Message" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-            $messageForm.submit(function(e){
-              e.preventDefault();
-              socket.emit('send message', $message.val());
-              $message.val('');
-            });
+  <script>
+    $(function () {
+      var socket = io.connect();
+      var $messageForm = $('#messageForm');
+      var $message = $('#message');
+      var $chat = $('#chat');
+      var $messageArea = $('#messageArea');
+      var $userForm = $('#userForm');
+      var $userFormArea = $('#userFormArea');
+      var $users = $('#users');
+      var $username = $('#username');
+      var $userLogout = $('#userLogout');
 
-            socket.on('new message', function(data){
-                $chat.append('<div class="well"><strong>'+data.user+': </strong>'+data.msg+'</div>');
-                autoScroll();
-            });
+      $messageForm.submit(function (e) {
+        e.preventDefault();
+        socket.emit('send message', $message.val());
+        $message.val('');
+      });
 
-            $("#message").keypress(function (e){
-              if(e.which == 13 && !e.shiftKey) {
-                $(this).closest("form").submit();
-                e.preventDefault();
-                return false;
-              }
-              autoScroll();
-            });
+      socket.on('new message', function (data) {
+        $chat.append('<div class="chat-msg"><strong>' + data.user + ': </strong>' + data.msg + '</div>');
+        autoScroll();
+      });
 
-            $userForm.submit(function(e){
-              e.preventDefault();
-              socket.emit('new user', $username.val(), function(data){
-                if(data){
-                  $userForm.hide();
-                  $messageArea.show();
-                  $userLogout.show();
-                  $('#firstHeader').hide();
-                  $('#firstHeaderH4').hide();
-                  window.alert("Welcome Stationers! \n \n User : (" +data+")");
-                }
-                else{
-                    $messageArea.hide();
-                    window.alert("Invalid Username");
-                    location.reload();
-                }
+      $("#message").keypress(function (e) {
+        if (e.which == 13 && !e.shiftKey) {
+          $(this).closest("form").submit();
+          e.preventDefault();
+          return false;
+        }
+      });
 
-              });
-
-              $username.val('');
-            });
-
-            socket.on('get users', function(data){
-              var html = '';
-              for (var i = 0; i < data.length; i++) {
-                if(data){
-                html+= '<li class="list-group-item">'+data[i]+'</li>'
-                    ;
-                }
-
-
-              }
-              $users.html(html);
-            });
-          });
-
-          function autoScroll() {
-            var elem = document.getElementById('chat');
-            elem.scrollTop = elem.scrollHeight;
+      $userForm.submit(function (e) {
+        e.preventDefault();
+        socket.emit('new user', $username.val(), function (data) {
+          if (data) {
+            $userFormArea.hide();
+            $userLogout.show();
+            $messageArea.show();
+            $('#firstHeader').hide();
+            $('#firstHeaderH4').hide();
+            //window.alert("Welcome Stationers! \n \n User : (" + data + ")");
           }
-          function userLogout(){
+          else {
+            $messageArea.hide();
+            window.alert("Invalid Username");
             location.reload();
           }
-        </script>
-  </body>
+        });
+        $username.val('');
+      });
+
+      socket.on('get users', function (data) {
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+          if (data) {
+            html += '<li class="list-group-item">' + data[i] + '</li>'
+              ;
+          }
+        }
+        $users.html(html);
+      });
+    });
+
+    function autoScroll() {
+      var elem = document.getElementById('chat');
+      elem.scrollTop = elem.scrollHeight;
+    }
+
+    function userLogout() {
+      location.reload();
+    }
+
+    function hideElement() {
+      document.getElementById('messageArea').style.display = "none";
+    }
+  </script>
+</body>
 </html>
