@@ -41,6 +41,46 @@
   box-sizing: border-box;
 }
 
+/*    OWN CSS   */
+
+
+#userLogout {
+  display: none;
+  float: right;
+}
+
+.bg-gray {
+  background: rgba(55, 61, 66, 1);
+}
+
+.bg-gray-med-transparent {
+  background: rgba(173, 173, 173, .5);
+}
+
+.bg-gray-high-transparent {
+  background: rgba(55, 61, 66, .1);
+}
+
+.bg-gray-extra-transparent {
+  background: rgba(55, 61, 66, .05);
+}
+
+.list-user {
+  height: fit-content;
+}
+
+.chat {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 63vh;
+}
+
+.chat-msg {
+  word-wrap: break-word;
+}
+
+/*    *******   */
+
 html {
   font-family: sans-serif;
   line-height: 1.15;
@@ -59,7 +99,7 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 }
 
 body {
-  margin: 0;
+  margin-top: 5px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 1rem;
   font-weight: 400;

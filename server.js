@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var server =  require('http').createServer(app);
 var io = require('socket.io').listen(server);
+var userTemp = '';
 users=[];
 connections=[];
 
@@ -18,18 +19,21 @@ io.sockets.on('connection',function(socket){
 
   //Disconnectnya
   socket.on('disconnect',function(data){
-
     users.splice(users.indexOf(socket.username),1);
     updateUsernames();
     connections.splice(connections.indexOf(socket), 1);
     console.log('Disconnected : %s sockets connected', connections.length);
   });
 
-  //sendMessage
+  socket.on('ini pesan', function(data){
+    userTemp = data;
+  });
 
+  //sendMessage
   socket.on('send message', function(data){
     console.log(data);
-    io.sockets.emit('new message', {msg: data, user:socket.username});
+    io.sockets.emit('new message', {msg: data, user:socket.username, temp:userTemp});
+    userTemp = '';
   });
 
   //new users
@@ -41,8 +45,6 @@ io.sockets.on('connection',function(socket){
   });
 
   function updateUsernames(){
-    
     io.sockets.emit('get users',users);
-
   }
 });
