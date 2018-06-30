@@ -49,6 +49,10 @@
   float: right;
 }
 
+#message {
+  resize: none;
+}
+
 .bg-gray {
   background: rgba(55, 61, 66, 1);
 }
@@ -72,13 +76,29 @@
 .chat {
   overflow-y: auto;
   overflow-x: hidden;
+  text-align: right;
   height: 63vh;
 }
 
 .chat-msg {
   word-wrap: break-word;
+  font-size: larger;
+  border-radius: 0.5rem;
+  display: inline-block;
+  max-width: 85%;
 }
 
+.chat-time {
+  font-size: xx-small;
+}
+
+.receiver {
+  float: left;
+}
+
+.clear {
+  clear: both;
+}
 /*    *******   */
 
 html {

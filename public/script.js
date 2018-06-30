@@ -8,6 +8,7 @@ $(function () {
     var $userFormArea = $('#userFormArea');
     var $users = $('#users');
     var $username = $('#username');
+    var $password = $('#password');
     var $userLogout = $('#userLogout');
     var currentUser = '';
 
@@ -19,11 +20,10 @@ $(function () {
     });
 
     socket.on('new message', function (data) {
-
       if (currentUser == data.temp) {
-        $chat.append('<div class="chat-msg mt-2 mr-2" style="text-align:right">' + data.msg + '</div>');
+        $chat.append('<div class="chat-msg mb-2 px-3 py-2 bg-white">'+ data.msg + '</div><br>');
       } else {
-        $chat.append('<div class="chat-msg"><strong>' + data.user + ' : </strong> ' + data.msg + '</div>');
+        $chat.append('<div class="chat-msg mb-2 px-3 py-2 btn-primary receiver clear"><strong>' + data.user + ' : </strong> ' + data.msg + '</div><br>');
       }
       autoScroll();
     });
@@ -38,22 +38,22 @@ $(function () {
 
     $userForm.submit(function (e) {
       e.preventDefault();
-      socket.emit('new user', $username.val(), function (data) {
-        if (data) {
-          $userFormArea.hide();
-          $userLogout.show();
-          $messageArea.show();
-          $('#firstHeader').hide();
-          $('#firstHeaderH4').hide();
-          currentUser = data;
-        }
-        else {
-          $messageArea.hide();
-          window.alert("Invalid Username");
-          location.reload();
-        }
-      });
-      $username.val('');
+      if (!isEmpty()) {
+        socket.emit('new user', $username.val(), $password.val(), function (data, status) {
+          if (status == true) {
+            alert(data);
+            $userFormArea.hide();
+            $userLogout.show();
+            $messageArea.show();
+            $('#firstHeader').hide();
+            $('#firstHeaderH4').hide();
+            currentUser = data;
+          }
+          else {
+            window.alert("User Not Found!");
+          }
+        });
+      }
     });
 
     socket.on('get users', function (data) {
@@ -79,4 +79,33 @@ $(function () {
 
   function hideElement() {
     document.getElementById('messageArea').style.display = "none";
+  }
+
+  function showTime() {
+    var d = new Date();
+    return d.getHours() + '.' + (d.getMinutes()<10?0:'') + d.getMinutes();
+  }
+
+  function isEmpty(){
+    var user = document.getElementById('username');
+    var pass = document.getElementById('password');
+
+    if (user.value.trim() != '') {
+      user.style.borderColor = "#ced4da";
+    } else if (pass.value.trim() != '') {
+      pass.style.borderColor = "#ced4da";
+    }
+
+    if (user.value.trim() == '' && pass.value.trim() == '') {
+      user.style.borderColor = "#FF0000";
+      pass.style.borderColor = "#FF0000";
+      return true;
+    } else if (user.value.trim() == '') {
+      user.style.borderColor = "#FF0000";
+      return true;
+    } else if (pass.value.trim() == '') {
+      pass.style.borderColor = "#FF0000";
+      return true;
+    }
+    return false;
   }
