@@ -4,13 +4,19 @@ $(function () {
     var $message = $('#message');
     var $chat = $('#chat');
     var $messageArea = $('#messageArea');
-    var $userForm = $('#userForm');
+    var $loginForm = $('#loginForm');
+    var $registerForm = $('#registerForm');
     var $userFormArea = $('#userFormArea');
     var $users = $('#users');
-    var $username = $('#username');
-    var $password = $('#password');
+    var $loginUsername = $('#login-username');
+    var $loginPassword = $('#login-password');
+    var $registerUsername = $('#reg-username');
+    var $registerPassword = $('#reg-password');
+    var $registerNickname = $('#reg-nickname');
     var $userLogout = $('#userLogout');
+    var $my3 = $('#my-3');
     var currentUser = '';
+
 
     $messageForm.submit(function (e) {
       e.preventDefault();
@@ -36,13 +42,14 @@ $(function () {
       }
     });
 
-    $userForm.submit(function (e) {
+    $loginForm.submit(function (e) {
       e.preventDefault();
       if (!isEmpty()) {
-        socket.emit('new user', $username.val(), $password.val(), function (data, status) {
+        socket.emit('login', $loginUsername.val(), $loginPassword.val(), function (data, status) {
           if (status == true) {
             alert(data);
             $userFormArea.hide();
+            $my3.show();
             $userLogout.show();
             $messageArea.show();
             $('#firstHeader').hide();
@@ -50,10 +57,28 @@ $(function () {
             currentUser = data;
           }
           else {
-            window.alert("User Not Found!");
+            alert("User Not Found!");
           }
         });
       }
+    });
+
+    $registerForm.submit(function (e) {
+      e.preventDefault();
+      if (!isEmpty()) {
+        socket.emit('register', $registerNickname.val(), $registerUsername.val(), $registerPassword.val(), function (status) {
+          if (status) {
+            $registerNickname.val('');
+            $registerUsername.val('');
+            $registerPassword.val('');
+            alert("Register Successfully");
+          }
+          else {
+            alert("Username already taken!");
+          }
+        });
+      }
+      
     });
 
     socket.on('get users', function (data) {
@@ -66,7 +91,16 @@ $(function () {
       }
       $users.html(html);
     });
+
+    $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+      $('a[data-toggle="pill"]').removeClass("active");
+      $(this).addClass("active");
+      var id = $(this).data("id");
+      currentTab = id;
+    });
   });
+  
+  var currentTab = 'signin';
 
   function autoScroll() {
     var elem = document.getElementById('chat');
@@ -77,35 +111,60 @@ $(function () {
     location.reload();
   }
 
-  function hideElement() {
-    document.getElementById('messageArea').style.display = "none";
-  }
-
   function showTime() {
     var d = new Date();
     return d.getHours() + '.' + (d.getMinutes()<10?0:'') + d.getMinutes();
   }
 
   function isEmpty(){
-    var user = document.getElementById('username');
-    var pass = document.getElementById('password');
+    var loginUser = document.getElementById('login-username');
+    var loginPass = document.getElementById('login-password');
+    var regUser = document.getElementById('reg-username');
+    var regPass = document.getElementById('reg-password');
+    var regNick = document.getElementById('reg-nickname');
 
-    if (user.value.trim() != '') {
-      user.style.borderColor = "#ced4da";
-    } else if (pass.value.trim() != '') {
-      pass.style.borderColor = "#ced4da";
-    }
+    if (currentTab == 'signin') {
+      if (loginUser.value.trim() != '') {
+        loginUser.style.borderColor = "#ced4da";
+      } else if (loginPass.value.trim() != '') {
+        loginPass.style.borderColor = "#ced4da";
+      }
 
-    if (user.value.trim() == '' && pass.value.trim() == '') {
-      user.style.borderColor = "#FF0000";
-      pass.style.borderColor = "#FF0000";
-      return true;
-    } else if (user.value.trim() == '') {
-      user.style.borderColor = "#FF0000";
-      return true;
-    } else if (pass.value.trim() == '') {
-      pass.style.borderColor = "#FF0000";
-      return true;
+      if (loginUser.value.trim() == '' && loginPass.value.trim() == '') {
+        loginUser.style.borderColor = "#FF0000";
+        loginPass.style.borderColor = "#FF0000";
+        return true;
+      } else if (loginUser.value.trim() == '') {
+        loginUser.style.borderColor = "#FF0000";
+        return true;
+      } else if (loginPass.value.trim() == '') {
+        loginPass.style.borderColor = "#FF0000";
+        return true;
+      }
+      return false;
+    } else {
+      if (regUser.value.trim() != '') {
+        regUser.style.borderColor = "#ced4da";
+      } else if (regPass.value.trim() != '') {
+        regPass.style.borderColor = "#ced4da";
+      } else if (regNick.value.trim() != '') {
+        regNick.style.borderColor = "#ced4da";
+      }
+
+      if (regUser.value.trim() == '' && regPass.value.trim() == '' && regNick.value.trim() == '') {
+        regUser.style.borderColor = "#FF0000";
+        regPass.style.borderColor = "#FF0000";
+        return true;
+      } else if (regUser.value.trim() == '') {
+        regUser.style.borderColor = "#FF0000";
+        return true;
+      } else if (regPass.value.trim() == '') {
+        regPass.style.borderColor = "#FF0000";
+        return true;
+      } else if (regNick.value.trim() == '') {
+        regNick.style.borderColor = "#FF0000";
+        return true;
+      }
+      return false;
     }
-    return false;
   }

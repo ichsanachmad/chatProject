@@ -12,7 +12,7 @@ var con = mysql.createConnection({
 var userTemp = '';
 users = [];
 connections = [];
-
+var output = false;
 server.listen(process.env.PORT || 3000);
 console.log('Server running');
 app.use("/public", express.static(__dirname + "/public"));
@@ -52,10 +52,10 @@ io.sockets.on('connection', function (socket) {
     userTemp = '';
   });
 
-  //new users
-  socket.on('new user', function (username, password, callback) {
-    var sql = "SELECT username, password, nickname FROM admins";
-    con.query(sql, [username,password], function (err, result) {
+  //Login
+  socket.on('login', function (username, password, callback) {
+    var sql = "SELECT username, password, nickname FROM users";
+    con.query(sql, function (err, result) {
       if (err) throw err;
       for (var i = 0; i < result.length; i++) {
         if (username == result[i].username && password == result[i].password) {
@@ -63,12 +63,37 @@ io.sockets.on('connection', function (socket) {
           socket.username = result[i].nickname;
           users.push(socket.username);
           updateUsernames();
-          console.log('SUKSES');
-          console.log(result);
+          console.log(username + ' has logged in');
           break;
         } else {
-          callback(username, false);
-          console.log('GAGAL');
+          if (i == (result.length - 1)) {
+            callback('', false);
+            console.log('Failed to login');
+          }
+        }
+      }
+    });
+  });
+
+  //Register
+  socket.on('register', function (nickname, username, password, callback) {
+    var sqlCheck = "SELECT username FROM users";
+    con.query(sqlCheck, function (err, result) {
+      if (err) throw err;
+      for (var i = 0; i < result.length; i++) {
+        if (username == result[i].username) {
+          console.log('Username is Taken');
+          callback(false);
+        } else {
+          if (i == (result.length - 1)) {
+            var sqlRegister = "INSERT INTO users (username, password, nickname) VALUES ?";
+            var values = [[username, password, nickname]];
+            con.query(sqlRegister, [values], function (err, result) {
+              if (err) throw err;
+              console.log(username + ' has Successfully Registered');
+            });
+            callback(true);
+          }
         }
       }
     });

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,38 +14,72 @@
   <script src="public/script.js"></script>
 </head>
 
-<body onload="hideElement()">
+<body>
   <center>
     <h1 id="firstHeader">Welcome to Sanstation WebChat</h1>
-    <h4 id="firstHeaderH4">Early Access 1.0.4</h4>
+    <h4 id="firstHeaderH4">Early Access 1.0.8</h4>
   </center>
 
   <div class="container">
     <div class="row" id="userFormArea">
-      <div class="col-sm-3 mt-5 pt-2 mx-auto shadow rounded">
-        <form id="userForm">
-          <div class="form-group">
-            <label>Username</label>
-            <input class="form-control" id="username"/>
-            <br>
-            <label>Password</label>
-            <input class="form-control" id="password" type="password"/>
-            <br>
-            <input type="submit" class="btn btn-primary" value="Login" onclick="isEmpty()"/>
+      <div class="col-sm-3 mt-5 pt-3 mx-auto shadow rounded">
+        <!-- Nav Pills -->
+        <ul class="nav nav-pills mb-3" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" data-id="signin" data-toggle="pill" href="#signin">Sign In</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-id="signup" data-toggle="pill" href="#signup">Sign Up</a>
+          </li>
+        </ul>
+        <!-- Tab Panes -->
+        <div class="tab-content">
+
+          <div id="signin" class="container tab-pane active">
+            <!-- SIGN IN CONTENT -->
+            <form id="loginForm">
+              <div class="form-group">
+                <label>Username</label>
+                <input class="form-control" id="login-username" />
+                <br>
+                <label>Password</label>
+                <input class="form-control" id="login-password" type="password" />
+                <br>
+                <input type="submit" class="btn btn-primary mb-3 float-right" value="Login"/>
+              </div>
+            </form>
           </div>
-        </form>
+
+          <div id="signup" class="container tab-pane fade">
+            <!-- SIGN UP CONTENT -->
+            <form id="registerForm">
+              <div class="form-group">
+                <label>Nickname</label>
+                <input class="form-control" id="reg-nickname" />
+                <br>
+                <label>Username</label>
+                <input class="form-control" id="reg-username" />
+                <br>
+                <label>Password</label>
+                <input class="form-control" id="reg-password" type="password" />
+                <br>
+                <input type="submit" class="btn btn-primary mb-3 float-right" value="Register"/>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="container my-3">
+  <div class="container my-3" id="my-3" style="display: none">
     <div class="row" id="messageArea">
       <div class="col-md-3 p-3 shadow-sm rounded list-user bg-gray-med-transparent">
         <div class="well">
           <h3>Online Users</h3>
           <ul class="list-group" id="users"></ul>
         </div>
-        <input type="submit" class="btn btn-danger mt-2" value="Logout" id="userLogout" onclick="userLogout()"/>
+        <input type="submit" class="btn btn-danger mt-2" value="Logout" id="userLogout" onclick="userLogout()" />
       </div>
 
       <div class="col-md-9 shadow rounded bg-gray-extra-transparent">
@@ -60,6 +95,7 @@
       </div>
     </div>
   </div>
-  
+
 </body>
+
 </html>
