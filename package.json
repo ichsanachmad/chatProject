@@ -9,7 +9,8 @@
   "author": "Sanstation",
   "license": "ISC",
   "dependencies": {
-    "socket.io": "*",
-    "express": "*"
+    "express": "*",
+    "mysql": "^2.15.0",
+    "socket.io": "*"
   }
 }
