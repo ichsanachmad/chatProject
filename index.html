@@ -14,7 +14,7 @@
   <script src="public/script.js"></script>
 </head>
 
-<body>
+<body oncontextmenu="return false">
   <center>
     <h1 id="firstHeader">Welcome to Sanstation WebChat</h1>
     <h4 id="firstHeaderH4">Early Access 1.0.8</h4>
@@ -25,10 +25,10 @@
       <div class="col-sm-3 mt-5 pt-3 mx-auto shadow rounded">
         <!-- Nav Pills -->
         <ul class="nav nav-pills mb-3" role="tablist">
-          <li class="nav-item">
+          <li class="nav-item mx-auto">
             <a class="nav-link active" data-id="signin" data-toggle="pill" href="#signin">Sign In</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item mx-auto">
             <a class="nav-link" data-id="signup" data-toggle="pill" href="#signup">Sign Up</a>
           </li>
         </ul>
@@ -79,7 +79,7 @@
           <h3>Online Users</h3>
           <ul class="list-group" id="users"></ul>
         </div>
-        <input type="submit" class="btn btn-danger mt-2" value="Logout" id="userLogout" onclick="userLogout()" />
+        <input type="submit" class="btn btn-danger mt-2" value="Logout" id="userLogout" onmousedown="userLogout()" />
       </div>
 
       <div class="col-md-9 shadow rounded bg-gray-extra-transparent">
@@ -95,7 +95,7 @@
       </div>
     </div>
   </div>
-
+  
 </body>
 
 </html>

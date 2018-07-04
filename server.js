@@ -12,7 +12,8 @@ var con = mysql.createConnection({
 var userTemp = '';
 users = [];
 connections = [];
-var output = false;
+var idTemp = [];
+
 server.listen(process.env.PORT || 3000);
 console.log('Server running');
 app.use("/public", express.static(__dirname + "/public"));
@@ -41,6 +42,10 @@ io.sockets.on('connection', function (socket) {
     userTemp = data;
   });
 
+  socket.on('kick', function(data){
+      io.sockets.connected[idTemp[1]].disconnect();
+  });
+
   //sendMessage
   socket.on('send message', function (data) {
     console.log(data);
@@ -54,36 +59,65 @@ io.sockets.on('connection', function (socket) {
 
   //Login
   socket.on('login', function (username, password, callback) {
-    var sql = "SELECT username, password, nickname FROM users";
-    con.query(sql, function (err, result) {
-      if (err) throw err;
-      for (var i = 0; i < result.length; i++) {
-        if (username == result[i].username && password == result[i].password) {
-          callback(result[i].nickname, true);
-          socket.username = result[i].nickname;
-          users.push(socket.username);
-          updateUsernames();
-          console.log(username + ' has logged in');
-          break;
-        } else {
-          if (i == (result.length - 1)) {
-            callback('', false);
-            console.log('Failed to login');
-          }
-        }
-      }
+    accountLogin(username, password, function(account, id, result){
+      callback(account, id, result);
+      idTemp.push(id);
+      console.log(id);
     });
   });
 
   //Register
-  socket.on('register', function (nickname, username, password, callback) {
+  socket.on('register', function (nickname, username, password, callback){
+    registerUser(nickname, username, password, function(result){
+      callback(result);
+    });
+  });
+
+  function accountLogin (username, password, callback){
+    var sql = "SELECT username, password, nickname FROM admins";
+    con.query(sql, function (err, result) {
+      if (err) throw err;
+      for (var i = 0; i < result.length; i++) {
+        if (username == result[i].username && password == result[i].password) {
+          socket.username = result[i].nickname;
+          users.push(socket.username);
+          updateUsernames();
+          console.log('Admins ' + username + ' has logged in');
+          return callback('admins', result[i].nickname, true);
+        } else {
+          if (i == (result.length - 1)) {
+            sql = "SELECT username, password, nickname FROM users";
+            con.query(sql, function (err, result) {
+              if (err) throw err;
+              for (var i = 0; i < result.length; i++) {
+                if (username == result[i].username && password == result[i].password) { 
+                  socket.username = result[i].nickname;
+                  users.push(socket.username);
+                  updateUsernames();
+                  console.log('Users ' + username + ' has logged in');
+                  return callback('users', result[i].nickname, true);
+                } else {
+                  if (i == (result.length - 1)) {
+                    console.log('Failed to login');
+                    return callback('', false);
+                  }
+                }
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+
+  function registerUser(nickname, username, password, callback) {
     var sqlCheck = "SELECT username FROM users";
     con.query(sqlCheck, function (err, result) {
       if (err) throw err;
       for (var i = 0; i < result.length; i++) {
         if (username == result[i].username) {
           console.log('Username is Taken');
-          callback(false);
+          return callback(false);
         } else {
           if (i == (result.length - 1)) {
             var sqlRegister = "INSERT INTO users (username, password, nickname) VALUES ?";
@@ -92,12 +126,12 @@ io.sockets.on('connection', function (socket) {
               if (err) throw err;
               console.log(username + ' has Successfully Registered');
             });
-            callback(true);
+            return callback(true);
           }
         }
       }
     });
-  });
+  }
 
   function updateUsernames() {
     io.sockets.emit('get users', users);
