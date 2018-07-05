@@ -129,11 +129,10 @@ $(function () {
   $(function () {
     $('ul').on('contextmenu', 'li', function (e) {
       e.preventDefault();
-      if (isAdmin && ($(this).text() != currentUser)) {
+      if (isAdmin ) {
         userId = getIndex(document.getElementById(this.id));
         $('#adminMenu').css({
           "position": "absolute",
-          "background": "blue",
           "z-index": "5"
         }).fadeIn().offset({
           top: e.pageY,
@@ -180,11 +179,11 @@ $(function () {
     $messageArea.show();
     $('#firstHeader').hide();
     $('#firstHeaderH4').hide();
-    $('.well').append('<div id="adminMenu" style="display: none;"></div>');
-    $('#adminMenu').append('<div id="mute">Mute User</div>');
-    $('#adminMenu').append('<div id="kick">Kick User</div>');
-    $('#adminMenu').append('<div id="ban">Ban User</div>');
-    $('#adminMenu').append('<div id="delete">Delete User</div>');
+    $('.well').append('<div class="btn-group-vertical" id="adminMenu" style="display: none;"></div>');
+    $('#adminMenu').append('<button type="button" class="btn btn-warning" id="mute" style="width:107.52; height:149;">Mute User</button>');
+    $('#adminMenu').append('<button type="button" class="btn btn-success" id="kick" style="width:107.52; height:149;">Kick User</button>');
+    $('#adminMenu').append('<button type="button" class="btn btn-danger" id="ban" style="width:107.52; height:149;">Ban User</button>');
+    $('#adminMenu').append('<button type="button" class="btn btn-dark" id="delete" style="width:107.52; height:149;">Delete User</button>');
   }
 
   function useUserLayout() {
