@@ -16,7 +16,9 @@ $(function () {
     var $userLogout = $('#userLogout');
     var $my3 = $('#my-3');
     var currentUser = '';
-
+    var $bugReport = $('#bugReport');
+    var $judulBug = $('#judulBug');
+    var $rincianBug = $('#rincianBug');
 
     $messageForm.submit(function (e) {
       e.preventDefault();
@@ -107,6 +109,18 @@ $(function () {
         });
       }
       
+    });
+
+    //REPORT FOR BUG
+    $bugReport.submit(function(e){
+      e.preventDefault();
+      socket.emit('send email', $judulBug.val(),$rincianBug.val(), function(data){
+        if(data){
+          alert("Laporan Sudah Dikirim (^_^)");
+        }else{
+          alert("Mohon Maaf Server Kami Sedang Gangguan");
+        }
+      });
     });
 
     socket.on('get users', function (data) {

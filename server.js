@@ -3,6 +3,9 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var mysql = require('mysql');
+var mailer =  require('nodemailer');
+var fs = require('fs');
+
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -13,11 +16,15 @@ var userTemp = '';
 users = [];
 connections = [];
 var output = false;
-server.listen(process.env.PORT || 36676);
+server.listen(process.env.PORT || 3000);
 console.log('Server running');
 app.use("/public", express.static(__dirname + "/public"));
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/feedback',function(req,res){
+  res.sendFile(__dirname+'/feedback.html');
 });
 
 con.connect(function (err) {
@@ -151,7 +158,37 @@ io.sockets.on('connection', function (socket) {
     });
   });
 
-  
+  //Mailer For Report Bug/User
+  socket.on('send email',function(judul,isi,callback){
+    var transporter =  mailer.createTransport({
+      service:'gmail',
+      auth:{
+        user:'bot.sanstation@gmail.com',
+        pass:'sanstation123'
+      }
+
+    });
+
+    var mailTarget ={
+      from:'bot.sanstation@gmail.com',
+      to:'bot.adsanstation@gmail.com',
+      subject:'[REPORT-SANSTATION] - '+judul,
+      text:isi
+    };
+
+    transporter.sendMail(mailTarget, function(error,info){
+      if(error){
+        console.log(error);
+        callback(false);
+      }else{
+        console.log('Ada Yang Mengirim Email Report! ' +info.response);
+        callback(true);
+      }
+    });
+    
+    
+  });
+  //====================================================
   
   function updateUsernames() {
     io.sockets.emit('get users', users);

@@ -10,7 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "*",
+    "fs": "0.0.1-security",
     "mysql": "^2.15.0",
+    "nodemailer": "^4.6.7",
     "socket.io": "*"
   }
 }
