@@ -164,7 +164,7 @@ io.sockets.on('connection', function (socket) {
       service:'gmail',
       auth:{
         user:'bot.sanstation@gmail.com',
-        pass:'sanstation123'
+        pass:''
       }
 
     });
