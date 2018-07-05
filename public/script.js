@@ -19,13 +19,6 @@ $(function () {
   var isAdmin = false;
   var userId = '';
 
-  $messageForm.submit(function (e) {
-    e.preventDefault();
-    socket.emit('ini pesan', currentUser);
-    socket.emit('send message', $message.val());
-    $message.val('');
-  });
-
   //NEW CHAT
   socket.on('new message', function (data) {
     if (currentUser == data.temp) {
@@ -79,6 +72,7 @@ $(function () {
     }
   });
 
+  //SHOW USER
   socket.on('get users', function (data) {
     var html = '';
     for (var i = 0; i < data.length; i++) {
@@ -87,6 +81,14 @@ $(function () {
       }
     }
     $users.html(html);
+  });
+
+  //SEND MESSAGE
+  $messageForm.submit(function (e) {
+    e.preventDefault();
+    socket.emit('ini pesan', currentUser);
+    socket.emit('send message', $message.val());
+    $message.val('');
   });
 
   $("#message").keypress(function (e) {
@@ -129,8 +131,9 @@ $(function () {
   $(function () {
     $('ul').on('contextmenu', 'li', function (e) {
       e.preventDefault();
-      if (isAdmin ) {
+      if (isAdmin && ($(this).text() != currentUser)) {
         userId = getIndex(document.getElementById(this.id));
+        alert(userId);
         $('#adminMenu').css({
           "position": "absolute",
           "z-index": "5"
@@ -142,6 +145,16 @@ $(function () {
     });
   });
 
+  //LOGOUT
+  $('#userLogout').on('click', function() {
+    location.reload();
+  });
+
+  //KICK USER
+  function kickUser() {
+    socket.emit('kick', userId);
+  }
+
   function adminMenuOn() {
     $('#mute').on('click', function () {
       alert('MUTE');
@@ -149,6 +162,7 @@ $(function () {
     });
     $('#kick').on('click', function () {
       alert('KICK');
+      kickUser();
       $('#adminMenu').fadeOut();
     });
     $('#ban').on('click', function () {
@@ -203,10 +217,6 @@ function autoScroll() {
   elem.scrollTop = elem.scrollHeight;
 }
 
-function userLogout() {
-  location.reload();
-}
-
 function showTime() {
   var d = new Date();
   return d.getHours() + '.' + (d.getMinutes() < 10 ? 0 : '') + d.getMinutes();
@@ -242,16 +252,16 @@ function isEmpty() {
     if (regUser.value.trim() != '' && regUser.value.trim().length >= 6) {
       regUser.style.borderColor = "#ced4da";
     }
-    if (regPass.value.trim() != '' && regPass.value.trim().length >= 6) {
+    if (regPass.value.trim() != '' && regPass.value.trim().length >= 8) {
       regPass.style.borderColor = "#ced4da";
     }
-    if (regNick.value.trim() != '' && regNick.value.trim().length >= 8) {
+    if (regNick.value.trim() != '' && regNick.value.trim().length >= 6) {
       regNick.style.borderColor = "#ced4da";
     }
 
     if ((regUser.value.trim() == '' || regUser.value.trim().length < 6) &&
-      (regPass.value.trim() == '' || regPass.value.trim().length < 6) &&
-      (regNick.value.trim() == '' || regNick.value.trim().length < 8)) {
+      (regPass.value.trim() == '' || regPass.value.trim().length < 8) &&
+      (regNick.value.trim() == '' || regNick.value.trim().length < 6)) {
 
       regUser.style.borderColor = "#FF0000";
       regPass.style.borderColor = "#FF0000";
@@ -260,10 +270,10 @@ function isEmpty() {
     } else if (regUser.value.trim() == '' || regUser.value.trim().length < 6) {
       regUser.style.borderColor = "#FF0000";
       return true;
-    } else if (regPass.value.trim() == '' || regPass.value.trim().length < 6) {
+    } else if (regPass.value.trim() == '' || regPass.value.trim().length < 8) {
       regPass.style.borderColor = "#FF0000";
       return true;
-    } else if (regNick.value.trim() == '' || regNick.value.trim().length < 8) {
+    } else if (regNick.value.trim() == '' || regNick.value.trim().length < 6) {
       regNick.style.borderColor = "#FF0000";
       return true;
     }

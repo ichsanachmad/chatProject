@@ -10,8 +10,8 @@ var con = mysql.createConnection({
   database: "ioChatDB"
 });
 var userTemp = '';
-users = [];
-connections = [];
+var users = [];
+var connections = [];
 var idTemp = [];
 
 server.listen(process.env.PORT || 3000);
@@ -31,10 +31,11 @@ io.sockets.on('connection', function (socket) {
   console.log('Connected : %s sockets connected', connections.length);
 
   //Disconnectnya
-  socket.on('disconnect', function (data) {
+  socket.on('disconnect', function () {
     users.splice(users.indexOf(socket.username), 1);
     updateUsernames();
     connections.splice(connections.indexOf(socket), 1);
+    idTemp.splice(connections.indexOf(socket), 1);
     console.log('Disconnected : %s sockets connected', connections.length);
   });
 
@@ -42,11 +43,15 @@ io.sockets.on('connection', function (socket) {
     userTemp = data;
   });
 
-  socket.on('kick', function(data){
-      io.sockets.connected[idTemp[1]].disconnect();
+  //Kick User
+  socket.on('kick', function (data) {
+    if (io.sockets.connected[idTemp[data]]) {
+      console.log(users[data] + ' has been kicked!');
+      io.sockets.connected[idTemp[data]].disconnect();
+    }
   });
 
-  //sendMessage
+  //Send Message
   socket.on('send message', function (data) {
     console.log(data);
     io.sockets.emit('new message', {
@@ -59,21 +64,20 @@ io.sockets.on('connection', function (socket) {
 
   //Login
   socket.on('login', function (username, password, callback) {
-    accountLogin(username, password, function(account, id, result){
-      callback(account, id, result);
-      idTemp.push(id);
-      console.log(id);
+    accountLogin(username, password, function (account, uname, result) {
+      callback(account, uname, result);
+      idTemp.push(socket.id);
     });
   });
 
   //Register
-  socket.on('register', function (nickname, username, password, callback){
-    registerUser(nickname, username, password, function(result){
+  socket.on('register', function (nickname, username, password, callback) {
+    registerUser(nickname, username, password, function (result) {
       callback(result);
     });
   });
 
-  function accountLogin (username, password, callback){
+  function accountLogin(username, password, callback) {
     var sql = "SELECT username, password, nickname FROM admins";
     con.query(sql, function (err, result) {
       if (err) throw err;
@@ -83,19 +87,19 @@ io.sockets.on('connection', function (socket) {
           users.push(socket.username);
           updateUsernames();
           console.log('Admins ' + username + ' has logged in');
-          return callback('admins', result[i].nickname, true);
+          return callback('admins', result[i].username, true);
         } else {
           if (i == (result.length - 1)) {
             sql = "SELECT username, password, nickname FROM users";
             con.query(sql, function (err, result) {
               if (err) throw err;
               for (var i = 0; i < result.length; i++) {
-                if (username == result[i].username && password == result[i].password) { 
+                if (username == result[i].username && password == result[i].password) {
                   socket.username = result[i].nickname;
                   users.push(socket.username);
                   updateUsernames();
                   console.log('Users ' + username + ' has logged in');
-                  return callback('users', result[i].nickname, true);
+                  return callback('users', result[i].username, true);
                 } else {
                   if (i == (result.length - 1)) {
                     console.log('Failed to login');
@@ -121,7 +125,9 @@ io.sockets.on('connection', function (socket) {
         } else {
           if (i == (result.length - 1)) {
             var sqlRegister = "INSERT INTO users (username, password, nickname) VALUES ?";
-            var values = [[username, password, nickname]];
+            var values = [
+              [username, password, nickname]
+            ];
             con.query(sqlRegister, [values], function (err, result) {
               if (err) throw err;
               console.log(username + ' has Successfully Registered');
