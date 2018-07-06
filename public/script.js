@@ -15,6 +15,7 @@ $(function () {
   var $registerNickname = $('#reg-nickname');
   var $userLogout = $('#userLogout');
   var $my3 = $('#my-3');
+  var currentNick = '';
   var currentUser = '';
   var isAdmin = false;
   var userId = '';
@@ -35,17 +36,17 @@ $(function () {
   $loginForm.submit(function (e) {
     e.preventDefault();
     if (!isEmpty()) {
-      socket.emit('login', $loginUsername.val(), $loginPassword.val(), function (title, data, status) {
+      socket.emit('login', $loginUsername.val(), $loginPassword.val(), function (title, user, nick, status) {
         if (status == true) {
           alert(title);
+          currentUser = user;
+          currentNick = nick;
           if (title == 'admins') {
             useAdminLayout();
             adminMenuOn();
-            currentUser = data;
             isAdmin = true;
           } else {
             useUserLayout();
-            currentUser = data;
             isAdmin = false;
           }
         } else {
@@ -131,9 +132,8 @@ $(function () {
   $(function () {
     $('ul').on('contextmenu', 'li', function (e) {
       e.preventDefault();
-      if (isAdmin && ($(this).text() != currentUser)) {
+      if (isAdmin && ($(this).text() != currentNick)) {
         userId = getIndex(document.getElementById(this.id));
-        alert(userId);
         $('#adminMenu').css({
           "position": "absolute",
           "z-index": "5"
@@ -146,7 +146,7 @@ $(function () {
   });
 
   //LOGOUT
-  $('#userLogout').on('click', function() {
+  $('#userLogout').on('click', function () {
     location.reload();
   });
 

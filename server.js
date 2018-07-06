@@ -32,10 +32,10 @@ io.sockets.on('connection', function (socket) {
 
   //Disconnectnya
   socket.on('disconnect', function () {
+    idTemp.splice(users.indexOf(socket.username), 1);
     users.splice(users.indexOf(socket.username), 1);
     updateUsernames();
     connections.splice(connections.indexOf(socket), 1);
-    idTemp.splice(connections.indexOf(socket), 1);
     console.log('Disconnected : %s sockets connected', connections.length);
   });
 
@@ -64,8 +64,8 @@ io.sockets.on('connection', function (socket) {
 
   //Login
   socket.on('login', function (username, password, callback) {
-    accountLogin(username, password, function (account, uname, result) {
-      callback(account, uname, result);
+    accountLogin(username, password, function (account, uname, nick, result) {
+      callback(account, uname, nick, result);
       idTemp.push(socket.id);
     });
   });
@@ -87,7 +87,7 @@ io.sockets.on('connection', function (socket) {
           users.push(socket.username);
           updateUsernames();
           console.log('Admins ' + username + ' has logged in');
-          return callback('admins', result[i].username, true);
+          return callback('admins', result[i].username, result[i].nickname, true);
         } else {
           if (i == (result.length - 1)) {
             sql = "SELECT username, password, nickname FROM users";
@@ -99,7 +99,7 @@ io.sockets.on('connection', function (socket) {
                   users.push(socket.username);
                   updateUsernames();
                   console.log('Users ' + username + ' has logged in');
-                  return callback('users', result[i].username, true);
+                  return callback('users', result[i].username, result[i].nickname, true);
                 } else {
                   if (i == (result.length - 1)) {
                     console.log('Failed to login');
