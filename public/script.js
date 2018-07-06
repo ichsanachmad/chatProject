@@ -150,9 +150,17 @@ $(function () {
     location.reload();
   });
 
+  //KICK ANNOUNCE
+  socket.on('announce', (data) => {
+    $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.announceMsg + '</div></center><br>');
+    $chat.append('<div class="clear"></div>');
+  });
+
   //KICK USER
   function kickUser() {
-    socket.emit('kick', userId);
+    if (confirm('Are You Sure?')) {
+      socket.emit('kick', userId);
+    }
   }
 
   function adminMenuOn() {
@@ -161,7 +169,6 @@ $(function () {
       $('#adminMenu').fadeOut();
     });
     $('#kick').on('click', function () {
-      alert('KICK');
       kickUser();
       $('#adminMenu').fadeOut();
     });

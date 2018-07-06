@@ -43,13 +43,15 @@ io.sockets.on('connection', function (socket) {
     userTemp = data;
   });
 
-  //Kick User
   socket.on('kick', function (data) {
     if (io.sockets.connected[idTemp[data]]) {
+      io.sockets.emit('announce', {
+        announceMsg: users[data] + ' has been kicked!'
+      });
       console.log(users[data] + ' has been kicked!');
       io.sockets.connected[idTemp[data]].disconnect();
     }
-  });
+  })
 
   //Send Message
   socket.on('send message', function (data) {
