@@ -10,9 +10,11 @@ var con = mysql.createConnection({
   database: "ioChatDB"
 });
 var userTemp = '';
-var users = [];
+var userNick = [];
+var userName = [];
 var connections = [];
 var idTemp = [];
+var listMuted = [];
 
 server.listen(process.env.PORT || 3000);
 console.log('Server running');
@@ -32,8 +34,9 @@ io.sockets.on('connection', function (socket) {
 
   //Disconnectnya
   socket.on('disconnect', function () {
-    idTemp.splice(users.indexOf(socket.username), 1);
-    users.splice(users.indexOf(socket.username), 1);
+    userName.splice(idTemp.indexOf(socket.id), 1);
+    idTemp.splice(idTemp.indexOf(socket.id), 1);
+    userNick.splice(userNick.indexOf(socket.username), 1);
     updateUsernames();
     connections.splice(connections.indexOf(socket), 1);
     console.log('Disconnected : %s sockets connected', connections.length);
@@ -43,24 +46,41 @@ io.sockets.on('connection', function (socket) {
     userTemp = data;
   });
 
+  //Kick User
   socket.on('kick', function (data) {
     if (io.sockets.connected[idTemp[data]]) {
       io.sockets.emit('announce', {
-        announceMsg: users[data] + ' has been kicked!'
+        announceMsg: userNick[data] + ' has been kicked!'
       });
-      console.log(users[data] + ' has been kicked!');
+      console.log(userNick[data] + ' has been kicked!');
       io.sockets.connected[idTemp[data]].disconnect();
     }
   })
 
+  //Mute User
+  socket.on('mute', function (data) {
+    listMuted.push(userName[data]);
+  })
+
   //Send Message
-  socket.on('send message', function (data) {
-    console.log(data);
+  socket.on('send message', function (nick, user, data) { 
+    var status = false;
+    var muteName = '';
+    for (var i = 0; i < listMuted.length; i++){
+      if (user == listMuted[i]) {
+        status = true;
+        muteName = user;
+      }
+    }
     io.sockets.emit('new message', {
       msg: data,
       user: socket.username,
-      temp: userTemp
+      temp: userTemp,
+      isMuted: status,
+      mutedName: muteName
     });
+    console.log(listMuted);
+    console.log(nick + ' : ' + data);
     userTemp = '';
   });
 
@@ -68,7 +88,6 @@ io.sockets.on('connection', function (socket) {
   socket.on('login', function (username, password, callback) {
     accountLogin(username, password, function (account, uname, nick, result) {
       callback(account, uname, nick, result);
-      idTemp.push(socket.id);
     });
   });
 
@@ -86,7 +105,9 @@ io.sockets.on('connection', function (socket) {
       for (var i = 0; i < result.length; i++) {
         if (username == result[i].username && password == result[i].password) {
           socket.username = result[i].nickname;
-          users.push(socket.username);
+          userNick.push(socket.username);
+          userName.push(username);
+          idTemp.push(socket.id);
           updateUsernames();
           console.log('Admins ' + username + ' has logged in');
           return callback('admins', result[i].username, result[i].nickname, true);
@@ -98,7 +119,9 @@ io.sockets.on('connection', function (socket) {
               for (var i = 0; i < result.length; i++) {
                 if (username == result[i].username && password == result[i].password) {
                   socket.username = result[i].nickname;
-                  users.push(socket.username);
+                  userNick.push(socket.username);
+                  userName.push(username);
+                  idTemp.push(socket.id);
                   updateUsernames();
                   console.log('Users ' + username + ' has logged in');
                   return callback('users', result[i].username, result[i].nickname, true);
@@ -142,6 +165,6 @@ io.sockets.on('connection', function (socket) {
   }
 
   function updateUsernames() {
-    io.sockets.emit('get users', users);
+    io.sockets.emit('get users', userNick);
   }
 });

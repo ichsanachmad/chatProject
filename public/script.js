@@ -18,18 +18,31 @@ $(function () {
   var currentNick = '';
   var currentUser = '';
   var isAdmin = false;
+  var muteId = '';
   var userId = '';
 
-  //NEW CHAT
+  //SEND MESSAGE
+  $messageForm.submit(function (e) {
+    e.preventDefault();
+    socket.emit('ini pesan', currentUser);
+    socket.emit('send message', currentNick, currentUser, $message.val());
+    $message.val('');
+  });
+
+  //SHOW MESSAGE
   socket.on('new message', function (data) {
-    if (currentUser == data.temp) {
-      $chat.append('<div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.msg + '</div><br>');
-      $chat.append('<div class="clear"></div>');
-    } else {
-      $chat.append('<div class="chat-msg mb-2 px-3 py-2 btn-primary float-left"><strong>' + data.user + ' : </strong> ' + data.msg + '</div><br>');
-      $chat.append('<div class="clear"></div>');
+    if (!data.isMuted) {
+      if (currentUser == data.temp) {
+        $chat.append('<div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.msg + '</div><br>');
+        $chat.append('<div class="clear"></div>');
+      } else {
+        $chat.append('<div class="chat-msg mb-2 px-3 py-2 btn-primary float-left"><strong>' + data.user + ' : </strong> ' + data.msg + '</div><br>');
+        $chat.append('<div class="clear"></div>');
+      }
+      autoScroll();
+    } else if (data.isMuted && currentUser == data.mutedName) {
+      alert('MUTED');
     }
-    autoScroll();
   });
 
   //LOGIN
@@ -84,14 +97,6 @@ $(function () {
     $users.html(html);
   });
 
-  //SEND MESSAGE
-  $messageForm.submit(function (e) {
-    e.preventDefault();
-    socket.emit('ini pesan', currentUser);
-    socket.emit('send message', $message.val());
-    $message.val('');
-  });
-
   $("#message").keypress(function (e) {
     if (e.which == 13 && !e.shiftKey) {
       $(this).closest("form").submit();
@@ -132,8 +137,9 @@ $(function () {
   $(function () {
     $('ul').on('contextmenu', 'li', function (e) {
       e.preventDefault();
-      if (isAdmin && ($(this).text() != currentNick)) {
+      if (isAdmin && ($(this).text() != 'currentNick')) {
         userId = getIndex(document.getElementById(this.id));
+        muteId = document.getElementById(this.id).id;
         $('#adminMenu').css({
           "position": "absolute",
           "z-index": "5"
@@ -147,25 +153,42 @@ $(function () {
 
   //LOGOUT
   $('#userLogout').on('click', function () {
+    socket.disconnect();
     location.reload();
   });
 
+  //MUTE USER
+  function muteUser() {
+    socket.emit('mute', userId);
+    addClass('bg-danger')
+  }
+
   //KICK ANNOUNCE
   socket.on('announce', (data) => {
-    $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.announceMsg + '</div></center><br>');
+    $chat.append('<center><div class="kick-msg mb-2 px-3 py-1 bg-gray-high-transparent">' + data.announceMsg + '</div></center><br>');
     $chat.append('<div class="clear"></div>');
   });
 
   //KICK USER
   function kickUser() {
-    if (confirm('Are You Sure?')) {
+    if (confirm('Kick User?')) {
       socket.emit('kick', userId);
     }
   }
 
+  function addClass(classname) {
+    var element = document.getElementById(muteId);
+    element.classList.add(classname);
+  }
+
+  function removeClass(classname) {
+    var element = document.getElementById(muteId);
+    element.classList.remove(classname);
+  }
+
   function adminMenuOn() {
     $('#mute').on('click', function () {
-      alert('MUTE');
+      muteUser();
       $('#adminMenu').fadeOut();
     });
     $('#kick').on('click', function () {

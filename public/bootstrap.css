@@ -92,6 +92,15 @@
   font-size: xx-small;
 }
 
+.kick-msg {
+  word-wrap: break-word;
+  font-size: small;
+  font-weight: bold;
+  border-radius: 2rem;
+  display: inline-block;
+  max-width: 100%;
+}
+
 .clear {
   clear: both;
 }
