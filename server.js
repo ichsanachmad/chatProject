@@ -60,6 +60,16 @@ io.sockets.on('connection', function (socket) {
   //Mute User
   socket.on('mute', function (data) {
     listMuted.push(userName[data]);
+    console.log(userName[data]);
+    console.log(userName);
+    console.log('MUTE : ' + listMuted);
+  })
+
+  //UnMute User
+  socket.on('unmute', function(data){
+    console.log(listMuted.indexOf(userName[data]));
+    listMuted.splice(listMuted.indexOf(userName[data]), 1);
+    console.log('UNMUTE : '+listMuted);
   })
 
   //Send Message

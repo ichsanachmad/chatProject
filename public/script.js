@@ -140,6 +140,16 @@ $(function () {
       if (isAdmin && ($(this).text() != 'currentNick')) {
         userId = getIndex(document.getElementById(this.id));
         muteId = document.getElementById(this.id).id;
+        $('#unmute').on('click', function () {
+          unmuteUser();
+          $('#adminMenu').fadeOut();
+          $('#mute').off();
+        });
+        $('#mute').on('click',function () {
+          muteUser();
+          $('#adminMenu').fadeOut();
+          $('#unmute').off();
+        });
         $('#adminMenu').css({
           "position": "absolute",
           "z-index": "5"
@@ -147,10 +157,11 @@ $(function () {
           top: e.pageY,
           left: e.pageX
         });
+        
       }
     });
   });
-
+  
   //LOGOUT
   $('#userLogout').on('click', function () {
     socket.disconnect();
@@ -159,8 +170,20 @@ $(function () {
 
   //MUTE USER
   function muteUser() {
+    if(confirm('Mute User?')){
     socket.emit('mute', userId);
-    addClass('bg-danger')
+    addClass('bg-danger');
+    $('#mute').html('Unmute User');
+    $('#mute').attr('id', 'unmute');
+    }
+  }
+  
+  //UNMUTE USER
+  function unmuteUser() {
+    socket.emit('unmute', userId);
+    removeClass('bg-danger');
+    $('#unmute').html('Mute User');
+    $('#unmute').attr('id', 'mute');
   }
 
   //KICK ANNOUNCE
@@ -186,11 +209,11 @@ $(function () {
     element.classList.remove(classname);
   }
 
+  function checkClass(element, classname){
+    return (' ' + element.className + ' ').indexOf(' ' + classname + ' ') > -1;
+  }
+
   function adminMenuOn() {
-    $('#mute').on('click', function () {
-      muteUser();
-      $('#adminMenu').fadeOut();
-    });
     $('#kick').on('click', function () {
       kickUser();
       $('#adminMenu').fadeOut();
