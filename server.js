@@ -6,6 +6,7 @@ var mysql = require('mysql');
 var mailer =  require('nodemailer');
 var fs = require('fs');
 
+
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -26,6 +27,8 @@ app.get('/', function (req, res) {
 app.get('/feedback',function(req,res){
   res.sendFile(__dirname+'/feedback.html');
 });
+app.use(express.static('public'));
+
 
 con.connect(function (err) {
   if (err) throw err;
@@ -94,6 +97,7 @@ io.sockets.on('connection', function (socket) {
           msg: data,
           user: socket.username,
           temp: userTemp
+
         });
         userTemp = '';
       // }
@@ -164,7 +168,7 @@ io.sockets.on('connection', function (socket) {
       service:'gmail',
       auth:{
         user:'bot.sanstation@gmail.com',
-        pass:''
+        pass:'sanstation123'
       }
 
     });

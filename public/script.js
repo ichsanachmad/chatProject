@@ -47,8 +47,10 @@ $(function () {
     socket.on('new message', function (data) {
       if (currentUser == data.temp) {
         $chat.append('<div class="chat-msg mb-2 px-3 py-2 bg-white">'+ data.msg + '</div><br>');
+        $chat.append('<div class="clear"></div>');
       } else {
-        $chat.append('<div class="chat-msg mb-2 px-3 py-2 btn-primary receiver clear"><strong>' + data.user + ' : </strong> ' + data.msg + '</div><br>');
+        $chat.append('<div class="chat-msg mb-2 px-3 py-2 btn-primary receiver clear"><img class="gambar-profil" src="images/man.png" width="50px" height="50px"><strong> ' + data.user + ' : </strong> ' + data.msg + '</div><br>');
+        $chat.append('<div class="clear"></div>');
       }
       autoScroll();
     });
@@ -77,6 +79,7 @@ $(function () {
 
             socket.on('user joined', (data) => {
               $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">'+ data.username + ' JOINED</div></center><br>');
+              $chat.append('<div class="clear"></div>');
               autoScroll();
              });
 
@@ -90,6 +93,7 @@ $(function () {
 
     socket.on('user out', (data) => {
       $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">'+ data.username + ' Logged Out</div></center><br>');
+      $chat.append('<div class="clear"></div>');
       autoScroll();
     });
 
