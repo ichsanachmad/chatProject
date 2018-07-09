@@ -18,13 +18,14 @@ $(function () {
   var currentNick = '';
   var currentUser = '';
   var isAdmin = false;
+  var isMuted = false;
   var muteId = '';
   var userId = '';
 
   //SEND MESSAGE
   $messageForm.submit(function (e) {
     e.preventDefault();
-    socket.emit('ini pesan', currentUser);
+    socket.emit('temp', currentUser);
     socket.emit('send message', currentNick, currentUser, $message.val());
     $message.val('');
   });
@@ -51,7 +52,7 @@ $(function () {
     if (!isEmpty()) {
       socket.emit('login', $loginUsername.val(), $loginPassword.val(), function (title, user, nick, status) {
         if (status == true) {
-          alert(title);
+          //alert(title);
           currentUser = user;
           currentNick = nick;
           if (title == 'admins') {
@@ -137,9 +138,15 @@ $(function () {
   $(function () {
     $('ul').on('contextmenu', 'li', function (e) {
       e.preventDefault();
-      if (isAdmin && ($(this).text() != 'currentNick')) {
+      if (isAdmin && ($(this).text() != currentNick)) {
         userId = getIndex(document.getElementById(this.id));
         muteId = document.getElementById(this.id).id;
+        isMuted = checkClass(document.getElementById(this.id), 'bg-danger');
+        if (isMuted) {
+          showUnmute();
+        } else {
+          showMute();
+        }
         $('#unmute').on('click', function () {
           unmuteUser();
           $('#adminMenu').fadeOut();
@@ -173,8 +180,7 @@ $(function () {
     if(confirm('Mute User?')){
     socket.emit('mute', userId);
     addClass('bg-danger');
-    $('#mute').html('Unmute User');
-    $('#mute').attr('id', 'unmute');
+    showUnmute();
     }
   }
   
@@ -182,14 +188,29 @@ $(function () {
   function unmuteUser() {
     socket.emit('unmute', userId);
     removeClass('bg-danger');
+    showMute();
+  }
+
+  function showMute(){
     $('#unmute').html('Mute User');
     $('#unmute').attr('id', 'mute');
+  }
+
+  function showUnmute(){
+    $('#mute').html('Unmute User');
+    $('#mute').attr('id', 'unmute');
   }
 
   //KICK ANNOUNCE
   socket.on('announce', (data) => {
     $chat.append('<center><div class="kick-msg mb-2 px-3 py-1 bg-gray-high-transparent">' + data.announceMsg + '</div></center><br>');
     $chat.append('<div class="clear"></div>');
+    if (currentUser == data.victim){
+      alert('You have been kicked~');
+      setTimeout(function(){
+        location.reload();
+      }, 3000);
+    }
   });
 
   //KICK USER

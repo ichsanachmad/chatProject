@@ -42,7 +42,7 @@ io.sockets.on('connection', function (socket) {
     console.log('Disconnected : %s sockets connected', connections.length);
   });
 
-  socket.on('ini pesan', function (data) {
+  socket.on('temp', function (data) {
     userTemp = data;
   });
 
@@ -50,7 +50,8 @@ io.sockets.on('connection', function (socket) {
   socket.on('kick', function (data) {
     if (io.sockets.connected[idTemp[data]]) {
       io.sockets.emit('announce', {
-        announceMsg: userNick[data] + ' has been kicked!'
+        announceMsg: userNick[data] + ' has been kicked!',
+        victim: userName[data]
       });
       console.log(userNick[data] + ' has been kicked!');
       io.sockets.connected[idTemp[data]].disconnect();
@@ -60,16 +61,13 @@ io.sockets.on('connection', function (socket) {
   //Mute User
   socket.on('mute', function (data) {
     listMuted.push(userName[data]);
-    console.log(userName[data]);
-    console.log(userName);
-    console.log('MUTE : ' + listMuted);
+    console.log('MUTE : ' + userName[data]);
   })
 
   //UnMute User
   socket.on('unmute', function(data){
-    console.log(listMuted.indexOf(userName[data]));
     listMuted.splice(listMuted.indexOf(userName[data]), 1);
-    console.log('UNMUTE : '+listMuted);
+    console.log('UNMUTE : '+userName[data]);
   })
 
   //Send Message
@@ -89,7 +87,6 @@ io.sockets.on('connection', function (socket) {
       isMuted: status,
       mutedName: muteName
     });
-    console.log(listMuted);
     console.log(nick + ' : ' + data);
     userTemp = '';
   });
