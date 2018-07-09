@@ -67,7 +67,8 @@ $(function () {
             isAdmin = false;
           }
           socket.on('user joined', (data) => {
-            $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.username + ' JOINED</div></center><br>');
+            $chat.append('<center><div class="kick-msg mb-2 px-3 py-1 bg-gray-high-transparent">' + data.username + ' has Joined</div></center><br>');
+            $chat.append('<div class="clear"></div>');
             autoScroll();
           });
         } else {
@@ -78,7 +79,8 @@ $(function () {
   });
 
   socket.on('user out', (data) => {
-    $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.username + ' Logged Out</div></center><br>');
+    $chat.append('<center><div class="kick-msg mb-2 px-3 py-1 bg-gray-high-transparent">' + data.username + ' has Logged Out</div></center><br>');
+    $chat.append('<div class="clear"></div>');
     autoScroll();
   });
 

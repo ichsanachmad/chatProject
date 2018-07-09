@@ -11,12 +11,13 @@ var con = mysql.createConnection({
   password: "bezariuz",
   database: "ioChatDB"
 });
-var userTemp = '';
 var userNick = [];
 var userName = [];
 var connections = [];
 var idTemp = [];
 var listMuted = [];
+var userTemp = '';
+var isKicked = false;
 
 server.listen(process.env.PORT || 3000);
 console.log('Server running');
@@ -45,11 +46,12 @@ io.sockets.on('connection', function (socket) {
     updateUsernames();
     connections.splice(connections.indexOf(socket), 1);
     console.log('Disconnected : %s sockets connected', connections.length);
-
-    socket.broadcast.emit('user out', {
-      username: socket.username
-    });
-
+    if (!isKicked) {
+      socket.broadcast.emit('user out', {
+        username: socket.username
+      });
+    }
+    isKicked = false;
   });
 
   socket.on('temp', function (data) {
@@ -63,6 +65,7 @@ io.sockets.on('connection', function (socket) {
         announceMsg: userNick[data] + ' has been kicked!',
         victim: userName[data]
       });
+      isKicked = true;
       console.log(userNick[data] + ' has been kicked!');
       io.sockets.connected[idTemp[data]].disconnect();
     }
@@ -121,7 +124,7 @@ io.sockets.on('connection', function (socket) {
       service: 'gmail',
       auth: {
         user: 'bot.sanstation@gmail.com',
-        pass: ''
+        pass: 'sanstation123'
       }
     });
 
