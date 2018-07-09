@@ -3,6 +3,8 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var mysql = require('mysql');
+var mailer = require('nodemailer');
+var fs = require('fs');
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -22,6 +24,9 @@ app.use("/public", express.static(__dirname + "/public"));
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
+app.get('/feedback', function (req, res) {
+  res.sendFile(__dirname + '/feedback.html');
+});
 
 con.connect(function (err) {
   if (err) throw err;
@@ -40,6 +45,11 @@ io.sockets.on('connection', function (socket) {
     updateUsernames();
     connections.splice(connections.indexOf(socket), 1);
     console.log('Disconnected : %s sockets connected', connections.length);
+
+    socket.broadcast.emit('user out', {
+      username: socket.username
+    });
+
   });
 
   socket.on('temp', function (data) {
@@ -64,17 +74,17 @@ io.sockets.on('connection', function (socket) {
     console.log('MUTE : ' + userName[data]);
   })
 
-  //UnMute User
-  socket.on('unmute', function(data){
+  //Unmute User
+  socket.on('unmute', function (data) {
     listMuted.splice(listMuted.indexOf(userName[data]), 1);
-    console.log('UNMUTE : '+userName[data]);
+    console.log('UNMUTE : ' + userName[data]);
   })
 
   //Send Message
-  socket.on('send message', function (nick, user, data) { 
+  socket.on('send message', function (nick, user, data) {
     var status = false;
     var muteName = '';
-    for (var i = 0; i < listMuted.length; i++){
+    for (var i = 0; i < listMuted.length; i++) {
       if (user == listMuted[i]) {
         status = true;
         muteName = user;
@@ -105,6 +115,34 @@ io.sockets.on('connection', function (socket) {
     });
   });
 
+  //Report Bug
+  socket.on('send email', function (judul, isi, callback) {
+    var transporter = mailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'bot.sanstation@gmail.com',
+        pass: ''
+      }
+    });
+
+    var mailTarget = {
+      from: 'bot.sanstation@gmail.com',
+      to: 'bot.adsanstation@gmail.com',
+      subject: '[REPORT-SANSTATION] - ' + judul,
+      text: isi
+    };
+
+    transporter.sendMail(mailTarget, function (error, info) {
+      if (error) {
+        console.log(error);
+        callback(false);
+      } else {
+        console.log('Ada Yang Mengirim Email Report! ' + info.response);
+        callback(true);
+      }
+    });
+  });
+
   function accountLogin(username, password, callback) {
     var sql = "SELECT username, password, nickname FROM admins";
     con.query(sql, function (err, result) {
@@ -117,6 +155,9 @@ io.sockets.on('connection', function (socket) {
           idTemp.push(socket.id);
           updateUsernames();
           console.log('Admins ' + username + ' has logged in');
+          socket.broadcast.emit('user joined', {
+            username: socket.username
+          });
           return callback('admins', result[i].username, result[i].nickname, true);
         } else {
           if (i == (result.length - 1)) {
@@ -131,6 +172,9 @@ io.sockets.on('connection', function (socket) {
                   idTemp.push(socket.id);
                   updateUsernames();
                   console.log('Users ' + username + ' has logged in');
+                  socket.broadcast.emit('user joined', {
+                    username: socket.username
+                  });
                   return callback('users', result[i].username, result[i].nickname, true);
                 } else {
                   if (i == (result.length - 1)) {

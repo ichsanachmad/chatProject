@@ -11,6 +11,8 @@
   "dependencies": {
     "express": "*",
     "mysql": "^2.15.0",
+    "fs": "0.0.1-security",
+    "nodemailer": "^4.6.7",
     "socket.io": "*"
   }
 }

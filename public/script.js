@@ -15,6 +15,9 @@ $(function () {
   var $registerNickname = $('#reg-nickname');
   var $userLogout = $('#userLogout');
   var $my3 = $('#my-3');
+  var $bugReport = $('#bugReport');
+  var $judulBug = $('#judulBug');
+  var $rincianBug = $('#rincianBug');
   var currentNick = '';
   var currentUser = '';
   var isAdmin = false;
@@ -63,11 +66,20 @@ $(function () {
             useUserLayout();
             isAdmin = false;
           }
+          socket.on('user joined', (data) => {
+            $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.username + ' JOINED</div></center><br>');
+            autoScroll();
+          });
         } else {
           alert("User Not Found!");
         }
       });
     }
+  });
+
+  socket.on('user out', (data) => {
+    $chat.append('<center><div class="chat-msg mb-2 px-3 py-2 bg-white">' + data.username + ' Logged Out</div></center><br>');
+    autoScroll();
   });
 
   //REGISTER
@@ -85,6 +97,18 @@ $(function () {
         }
       });
     }
+  });
+
+  //REPORT FOR BUG
+  $bugReport.submit(function (e) {
+    e.preventDefault();
+    socket.emit('send email', $judulBug.val(), $rincianBug.val(), function (data) {
+      if (data) {
+        alert("Laporan Sudah Dikirim (^_^)");
+      } else {
+        alert("Mohon Maaf Server Kami Sedang Gangguan");
+      }
+    });
   });
 
   //SHOW USER
@@ -152,7 +176,7 @@ $(function () {
           $('#adminMenu').fadeOut();
           $('#mute').off();
         });
-        $('#mute').on('click',function () {
+        $('#mute').on('click', function () {
           muteUser();
           $('#adminMenu').fadeOut();
           $('#unmute').off();
@@ -164,11 +188,11 @@ $(function () {
           top: e.pageY,
           left: e.pageX
         });
-        
+
       }
     });
   });
-  
+
   //LOGOUT
   $('#userLogout').on('click', function () {
     socket.disconnect();
@@ -177,13 +201,13 @@ $(function () {
 
   //MUTE USER
   function muteUser() {
-    if(confirm('Mute User?')){
-    socket.emit('mute', userId);
-    addClass('bg-danger');
-    showUnmute();
+    if (confirm('Mute User?')) {
+      socket.emit('mute', userId);
+      addClass('bg-danger');
+      showUnmute();
     }
   }
-  
+
   //UNMUTE USER
   function unmuteUser() {
     socket.emit('unmute', userId);
@@ -191,12 +215,12 @@ $(function () {
     showMute();
   }
 
-  function showMute(){
+  function showMute() {
     $('#unmute').html('Mute User');
     $('#unmute').attr('id', 'mute');
   }
 
-  function showUnmute(){
+  function showUnmute() {
     $('#mute').html('Unmute User');
     $('#mute').attr('id', 'unmute');
   }
@@ -205,9 +229,10 @@ $(function () {
   socket.on('announce', (data) => {
     $chat.append('<center><div class="kick-msg mb-2 px-3 py-1 bg-gray-high-transparent">' + data.announceMsg + '</div></center><br>');
     $chat.append('<div class="clear"></div>');
-    if (currentUser == data.victim){
+    autoScroll();
+    if (currentUser == data.victim) {
       alert('You have been kicked~');
-      setTimeout(function(){
+      setTimeout(function () {
         location.reload();
       }, 3000);
     }
@@ -230,7 +255,7 @@ $(function () {
     element.classList.remove(classname);
   }
 
-  function checkClass(element, classname){
+  function checkClass(element, classname) {
     return (' ' + element.className + ' ').indexOf(' ' + classname + ' ') > -1;
   }
 
