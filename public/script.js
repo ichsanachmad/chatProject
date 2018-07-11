@@ -49,7 +49,8 @@ $(function () {
         $chat.append('<div class="chat-msg mb-2 px-3 py-2 bg-white">'+ data.msg + '</div><br>');
         $chat.append('<div class="clear"></div>');
       } else {
-        $chat.append('<div class="chat-msg mb-2 px-3 py-2 btn-primary receiver clear"><img class="gambar-profil" src="images/man.png" width="50px" height="50px"><strong> ' + data.user + ' : </strong> ' + data.msg + '</div><br>');
+        
+        $chat.append('<div class="chat-with-photo"><img class="gambar-profil" src="images/man.png" width="50px" height="50px" align="left"><div class="chat-msg mb-2 px-3 py-2 btn-primary receiver clear "><strong> ' + data.user + ' : </strong><br> ' + data.msg + '</div></div><br>');
         $chat.append('<div class="clear"></div>');
       }
       autoScroll();

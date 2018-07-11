@@ -42,11 +42,14 @@
 }
 
 /*    OWN CSS   */
-
+.chat-with-photo{
+  float : left;
+}
 .gambar-profil{
   width: 50px;
   height: 50px;
   position: relative;
+  
   overflow: hidden;
   border-radius: 50%;
 }
@@ -92,6 +95,7 @@
   font-size: larger;
   border-radius: 0.5rem;
   display: inline-block;
+  text-align: justify;
   max-width: 85%;
 }
 
@@ -100,7 +104,8 @@
 }
 
 .receiver {
-  float: left;
+  /* float: left; */
+  /* margin-right: 50px; */
 }
 
 .clear {
