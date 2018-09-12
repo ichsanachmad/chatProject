@@ -1,7 +1,9 @@
 # chatProject
 
-Welcome to chatProject~
+## THIS PROJECT STOPPED 
 
-this project is under developing
-
-Thank You~
+# BUGS/ETC
+- No Whisper
+- List Bug
+- Node JS Bug Disconnect Node
+- Can't Change Profile Picture
